@@ -9,6 +9,7 @@ const picksRoutes = require('./routes/picks');
 const parlaysRoutes = require('./routes/parlays');
 const betslipRoutes = require('./routes/betslip');
 const subscriptionsRoutes = require('./routes/subscriptions');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 
@@ -51,6 +52,7 @@ app.use('/picks', picksRoutes);
 app.use('/parlays', parlaysRoutes);
 app.use('/betslip', betslipRoutes);
 app.use('/subscriptions', subscriptionsRoutes);
+app.use('/admin', adminRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
