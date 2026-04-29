@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
-import { getSubscriptionStatus } from '../services/api';
+import { api } from '../services/api';
 
 const TIER_COLORS = {
   free: '#888888',
@@ -36,13 +36,35 @@ export default function ProfileScreen({ navigation }) {
 
   const loadStatus = async () => {
     try {
-      const status = await getSubscriptionStatus();
+      const status = await api.getSubscriptionStatus();
       setSubStatus(status);
     } catch (err) {
       console.log('Status error:', err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      '⚠ Delete Account',
+      'This will permanently delete your account and all your data. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete My Account',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await api.deleteAccount();
+              await logout();
+            } catch (err) {
+              Alert.alert('Error', 'Failed to delete account. Please contact support@intellabets.com');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleLogout = () => {
@@ -240,6 +262,11 @@ export default function ProfileScreen({ navigation }) {
         <Text style={styles.logoutText}>Log Out</Text>
       </TouchableOpacity>
 
+      {/* Delete Account */}
+      <TouchableOpacity style={styles.deleteBtn} onPress={handleDeleteAccount}>
+        <Text style={styles.deleteText}>Delete Account & All Data</Text>
+      </TouchableOpacity>
+
       <Text style={styles.version}>IntellaBets v1.0.0</Text>
     </ScrollView>
   );
@@ -397,6 +424,16 @@ const styles = StyleSheet.create({
     color: '#ef4444',
     fontSize: 15,
     fontWeight: '700',
+  },
+  deleteBtn: {
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  deleteText: {
+    color: '#444',
+    fontSize: 13,
+    textDecorationLine: 'underline',
   },
   version: {
     textAlign: 'center',

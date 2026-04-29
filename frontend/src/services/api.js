@@ -40,6 +40,8 @@ export const api = {
 
   me: () => request('/auth/me'),
 
+  deleteAccount: () => request('/auth/account', { method: 'DELETE' }),
+
   // Picks
   getPicks: (sport) =>
     request(`/picks${sport ? `?sport=${sport}` : ''}`),
