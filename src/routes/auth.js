@@ -103,4 +103,26 @@ router.get('/me', authenticateToken, async (req, res) => {
   }
 });
 
+// Delete account (GDPR / CCPA compliance)
+router.delete('/account', authenticateToken, async (req, res) => {
+  try {
+    const { userId, email } = req.user;
+
+    // Delete subscription history
+    await db.query('DELETE FROM subscription_history WHERE user_id = $1', [userId]);
+
+    // Delete pick history
+    await db.query('DELETE FROM pick_history WHERE user_id = $1', [userId]);
+
+    // Delete user
+    await db.query('DELETE FROM users WHERE id = $1', [userId]);
+
+    console.log(`Account deleted: ${email} (${userId})`);
+    res.json({ success: true, message: 'Account and all associated data deleted.' });
+  } catch (error) {
+    console.error('Delete account error:', error);
+    res.status(500).json({ error: 'Failed to delete account' });
+  }
+});
+
 module.exports = router;
