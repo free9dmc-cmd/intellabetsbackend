@@ -76,9 +76,9 @@ router.post('/set-tier', verifyToken, adminCheck, async (req, res) => {
   try {
     const result = await pool.query(
       `UPDATE users
-       SET tier = $1, picks_used = 0, period_start = NOW()
+       SET subscription_tier = $1, picks_used = 0, period_start = NOW()
        WHERE email = $2
-       RETURNING id, name, email, tier`,
+       RETURNING id, name, email, subscription_tier as tier`,
       [tier, email.toLowerCase()]
     );
 
