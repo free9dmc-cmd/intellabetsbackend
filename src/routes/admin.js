@@ -86,12 +86,16 @@ router.post('/set-tier', verifyToken, adminCheck, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Log in subscription history
-    await pool.query(
-      `INSERT INTO subscription_history (user_id, tier, transaction_id, created_at)
-       VALUES ($1, $2, $3, NOW())`,
-      [result.rows[0].id, tier, `admin-override-${Date.now()}`]
-    );
+    // Attempt to log in subscription history (best-effort, don't fail if table schema differs)
+    try {
+      await pool.query(
+        `INSERT INTO subscription_history (user_id, tier, transaction_id, created_at)
+         VALUES ($1, $2, $3, NOW())`,
+        [result.rows[0].id, tier, `admin-override-${Date.now()}`]
+      );
+    } catch (histErr) {
+      console.warn('subscription_history insert skipped:', histErr.message);
+    }
 
     res.json({ success: true, user: result.rows[0] });
   } catch (err) {
